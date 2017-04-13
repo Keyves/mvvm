@@ -71,15 +71,20 @@ global.data = data
 管理订阅队列
 
 ```javascript
-export default class Dep {
-    static target = null
+let uuid = 0
 
+class Dep {
     constructor() {
+        this.id = uuid++
         this.watchers = []
     }
 
     addWatcher(watcher) {
         this.watchers.push(watcher)
+    }
+
+    depend() {
+        Dep.target.addDep(this)
     }
 
     notify() {
@@ -88,6 +93,9 @@ export default class Dep {
         })
     }
 }
+
+Dep.target = null
+export default Dep
 ```
 
 #### observe
@@ -166,6 +174,7 @@ export default class Watcher {
             this.cb.call(this.m, value)
         }
     }
+    
     get() {
         Dep.target = this
         const value = this.m._data[this.expOrFn]
@@ -244,6 +253,15 @@ const directives = {
         new Watcher(m, expValue, function(value) {
             node.setAttribute(realAttr, value)
        })
+    },
+    on(node, m, realAttr, expValue) {
+        let fn = m[expValue]
+        node.addEventListener(realAttr, fn)
+        new Watcher(m, expValue, function(value) {
+            node.removeEventListener(realAttr, fn)
+            fn = m[value]
+            node.addEventListener(realAttr, fn)
+        })
     }
 }
 ```
