@@ -203,11 +203,8 @@ const attrRE = /^(bind|on):(\w+)$/
 const textRE = /\{\{((?:.|\s)*?)\}\}/g
 
 function parseElementNode(node, m) {
-    var attrs = toArray(node.attributes),
-        tokens = [],
-        name,
-        expValue,
-        result
+    const attrs = toArray(node.attributes), tokens = []
+    let name, expValue, result
 
     attrs.forEach(attr => {
         name = attr.name
@@ -219,7 +216,7 @@ function parseElementNode(node, m) {
 }
 
 function parseTextNode(node, m) {
-    var result
+    let result
     while (result = textRE.exec(node.textContent)) {
         directives.text(node, m, result[1])
     }

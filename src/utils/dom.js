@@ -1,6 +1,6 @@
 
 export function nodeToFragment(node) {
-    var frag = document.createDocumentFragment(),
+    const frag = document.createDocumentFragment(),
         child
     while (child = node.firstChild) {
         frag.appendChild(child)
