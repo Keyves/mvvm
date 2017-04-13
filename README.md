@@ -107,16 +107,16 @@ export default function observe(data) {
 }
 
 function defineReactive(data, key, value) {
-    let dep = new Dep()
+    const dep = new Dep()
 
     observe(value)
     Object.defineProperty(data, key, {
         enumerable: true,
         configurable: true,
         get() {
-            let target = Dep.target
+            const target = Dep.target
             if (target) {
-                dep.addWatcher(target)
+                dep.depend()
             }
             return value
         },
@@ -145,10 +145,20 @@ export default class Watcher {
         Object.assign(this, {
             m,
             expOrFn,
-            cb
+            cb,
+            depIds: new Set()
         })
+
         this.value = this.get()
     }
+
+    addDep(dep) {
+        if (!this.depIds.has(dep.id)) {
+            this.depIds.add(dep.id)
+            dep.addWatcher(this)
+        }
+    }
+
     update() {
         const value = this.get()
         if (value !== this.value) {
