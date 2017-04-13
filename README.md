@@ -10,29 +10,29 @@
 import MVVM from './src/core'
 
 const data = {
-	a: 1
+    a: 1
 }
 
 const template = `
-	<div>
+    <div>
         <input bind:value="a" on:input="onInput"/>
-		<div>{{a}}</div>
-	</div>
+        <div>{{a}}</div>
+    </div>
 `
 
 const mv = new MVVM({
-	selector: 'body',
-	data,
+    selector: 'body',
+    data,
     methods: {
         onInput(e) {
             this.a = e.target.value
         }
     },
-	template
+    template
 })
 
 mv.$watch('a', (newValue) => {
-	console.log('callback', newValue)
+    console.log('callback', newValue)
 })
 
 console.log(data.a, mv.a)
@@ -72,21 +72,21 @@ global.data = data
 
 ```javascript
 export default class Dep {
-	static target = null
+    static target = null
 
-	constructor() {
-		this.watchers = []
-	}
+    constructor() {
+        this.watchers = []
+    }
 
-	addWatcher(watcher) {
-		this.watchers.push(watcher)
-	}
+    addWatcher(watcher) {
+        this.watchers.push(watcher)
+    }
 
-	notify() {
-		this.watchers.forEach(watcher => {
-			watcher.update()
-		})
-	}
+    notify() {
+        this.watchers.forEach(watcher => {
+            watcher.update()
+        })
+    }
 }
 ```
 
@@ -101,34 +101,34 @@ export default function observe(data) {
     if (!data || typeof data !== 'object') {
         return
     }
-	Object.keys(data).forEach(key => {
-		defineReactive(data, key, data[key])
-	})
+    Object.keys(data).forEach(key => {
+        defineReactive(data, key, data[key])
+    })
 }
 
 function defineReactive(data, key, value) {
-	let dep = new Dep()
+    let dep = new Dep()
 
     observe(value)
-	Object.defineProperty(data, key, {
-		enumerable: true,
-		configurable: true,
-		get() {
-			let target = Dep.target
-			if (target) {
-				dep.addWatcher(target)
-			}
-			return value
-		},
-		set(newValue) {
-			if (newValue === value) {
-				return
-			}
-			value = newValue
-			observe(newValue)
-			dep.notify()
-		}
-	})
+    Object.defineProperty(data, key, {
+        enumerable: true,
+        configurable: true,
+        get() {
+            let target = Dep.target
+            if (target) {
+                dep.addWatcher(target)
+            }
+            return value
+        },
+        set(newValue) {
+            if (newValue === value) {
+                return
+            }
+            value = newValue
+            observe(newValue)
+            dep.notify()
+        }
+    })
 }
 ```
 
@@ -141,27 +141,27 @@ function defineReactive(data, key, value) {
 import Dep from './observe/dep'
 
 export default class Watcher {
-	constructor(m, expOrFn, cb) {
-		Object.assign(this, {
-			m,
-			expOrFn,
-			cb
-		})
-		this.value = this.get()
-	}
-	update() {
+    constructor(m, expOrFn, cb) {
+        Object.assign(this, {
+            m,
+            expOrFn,
+            cb
+        })
+        this.value = this.get()
+    }
+    update() {
         const value = this.get()
-		if (value !== this.value) {
-		    this.value = value
-		    this.cb.call(this.m, value)
-		}
-	}
-	get() {
-		Dep.target = this
-		const value = this.m._data[this.expOrFn]
-		Dep.target = null
+        if (value !== this.value) {
+            this.value = value
+            this.cb.call(this.m, value)
+        }
+    }
+    get() {
+        Dep.target = this
+        const value = this.m._data[this.expOrFn]
+        Dep.target = null
         return value
-	}
+    }
 }
 ```
 
@@ -171,26 +171,26 @@ export default class Watcher {
 
 ```javascript
 export default function compile(m, template) {
-	m.$fragment = stringToFragment(template)
-	parseChildNodes(m.$fragment, m)
-	m.$el.appendChild(m.$fragment)
+    m.$fragment = stringToFragment(template)
+    parseChildNodes(m.$fragment, m)
+    m.$el.appendChild(m.$fragment)
 }
 
 function parseChildNodes(node, m) {
-	node.childNodes.forEach(child => {
-		parseNode(child, m)
-		child.childNodes && child.childNodes.length && parseChildNodes(child, m)
-	})
+    node.childNodes.forEach(child => {
+        parseNode(child, m)
+        child.childNodes && child.childNodes.length && parseChildNodes(child, m)
+    })
 }
 
 function parseNode(node, m) {
-	if (isElementNode(node)) {
-		parseElementNode(node, m)
-	}
+    if (isElementNode(node)) {
+        parseElementNode(node, m)
+    }
 
-	else if (isTextNode(node)) {
-		parseTextNode(node, m)
-	}
+    else if (isTextNode(node)) {
+        parseTextNode(node, m)
+    }
 }
 ```
 
@@ -203,41 +203,41 @@ const attrRE = /^(bind|on):(\w+)$/
 const textRE = /\{\{((?:.|\s)*?)\}\}/g
 
 function parseElementNode(node, m) {
-	var attrs = toArray(node.attributes),
-		tokens = [],
-		name,
-		expValue,
-		result
+    var attrs = toArray(node.attributes),
+        tokens = [],
+        name,
+        expValue,
+        result
 
-	attrs.forEach(attr => {
-		name = attr.name
-		expValue = attr.value
-		if (result = attrRE.exec(name)) {
-			directives[result[1]](node, m, result[2], expValue)
-		}
-	})
+    attrs.forEach(attr => {
+        name = attr.name
+        expValue = attr.value
+        if (result = attrRE.exec(name)) {
+            directives[result[1]](node, m, result[2], expValue)
+        }
+    })
 }
 
 function parseTextNode(node, m) {
-	var result
-	while (result = textRE.exec(node.textContent)) {
-		directives.text(node, m, result[1])
-	}
+    var result
+    while (result = textRE.exec(node.textContent)) {
+        directives.text(node, m, result[1])
+    }
 }
 
 const directives = {
-	text(node, m, expValue) {
-		node.textContent = m[expValue]
-		new Watcher(m, expValue, function(value) {
-			node.textContent = value
-		})
-	},
-	bind(node, m, realAttr, expValue) {
-		node.setAttribute(realAttr, m[expValue])
-		new Watcher(m, expValue, function(value) {
-			node.setAttribute(realAttr, value)
-	   })
-	}
+    text(node, m, expValue) {
+        node.textContent = m[expValue]
+        new Watcher(m, expValue, function(value) {
+            node.textContent = value
+        })
+    },
+    bind(node, m, realAttr, expValue) {
+        node.setAttribute(realAttr, m[expValue])
+        new Watcher(m, expValue, function(value) {
+            node.setAttribute(realAttr, value)
+       })
+    }
 }
 ```
 

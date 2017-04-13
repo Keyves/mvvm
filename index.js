@@ -1,29 +1,29 @@
 import MVVM from './src/core'
 
 const data = {
-	a: 1
+    a: 1
 }
 
 const template = `
-	<div>
+    <div>
         <input bind:value="a" on:input="onInput"/>
-		<div>{{a}}</div>
-	</div>
+        <div>{{a}}</div>
+    </div>
 `
 
 const mv = new MVVM({
-	selector: 'body',
-	data,
+    selector: 'body',
+    data,
     methods: {
         onInput(e) {
             this.a = e.target.value
         }
     },
-	template
+    template
 })
 
 mv.$watch('a', (newValue) => {
-	console.log('callback', newValue)
+    console.log('callback', newValue)
 })
 
 console.log(data.a, mv.a)
