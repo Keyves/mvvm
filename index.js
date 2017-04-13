@@ -6,14 +6,19 @@ const data = {
 
 const template = `
 	<div>
+        <input bind:value="a" on:input="onInput"/>
 		<div>{{a}}</div>
-		<input bind:value="a"/>
 	</div>
 `
 
-var mv = new MVVM({
+const mv = new MVVM({
 	selector: 'body',
 	data,
+    methods: {
+        onInput(e) {
+            this.a = e.target.value
+        }
+    },
 	template
 })
 

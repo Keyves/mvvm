@@ -1,16 +1,15 @@
 import observe from '../observe'
 
 export default function initState(m) {
-	var opts = m._opts
-	initData(m, opts.data)
+	initData(m, m.$options.data)
 }
 
 function initData(m, data) {
 	observe(data)
-	proxy(m, m._data)
+	proxy(m, data)
 }
 
-function proxy(target, source) {
+export function proxy(target, source) {
 	Object.keys(source).forEach(key => {
 		Object.defineProperty(target, key, {
 			enumerable: true,
@@ -19,7 +18,6 @@ function proxy(target, source) {
 				return source[key]
 			},
 			set(newValue) {
-				console.log(source)
 				source[key] = newValue
 			}
 		})

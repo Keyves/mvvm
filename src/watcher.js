@@ -5,10 +5,20 @@ export default class Watcher {
 		Object.assign(this, {
 			m,
 			expOrFn,
-			cb
+			cb,
+            depIds: new Set()
 		})
+
 		this.value = this.get()
 	}
+
+    addDep(dep) {
+        if (!this.depIds.has(dep.id)) {
+            this.depIds.add(dep.id)
+            dep.addWatcher(this)
+        }
+    }
+
 	update() {
         const value = this.get()
 		if (value !== this.value) {

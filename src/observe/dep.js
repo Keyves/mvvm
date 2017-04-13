@@ -1,11 +1,18 @@
+let uuid = 0
+
 class Dep {
 	constructor() {
+        this.id = uuid++
 		this.watchers = []
 	}
 
 	addWatcher(watcher) {
 		this.watchers.push(watcher)
 	}
+
+    depend() {
+        Dep.target.addDep(this)
+    }
 
 	notify() {
 		this.watchers.forEach(watcher => {

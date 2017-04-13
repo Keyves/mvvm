@@ -1,15 +1,17 @@
 import initState from './initState'
+import initMethods from './initMethods'
 import Watcher from '../watcher'
 import compile from '../compile'
 
 export default class MVVM {
 	constructor(opts) {
 		this._data = opts.data
-		this._opts = opts
+		this.$options = opts
 		this.$el = document.querySelector(opts.selector)
 		this.$fragment = null
 
 		initState(this)
+        initMethods(this)
 		compile(this, opts.template)
 	}
 	$watch(exp, cb) {
