@@ -1,5 +1,7 @@
 import Dep from './observe/dep'
+import { parsePath } from './utils/lang'
 
+function noop() {}
 export default class Watcher {
     constructor(m, expOrFn, cb) {
         Object.assign(this, {
@@ -9,6 +11,12 @@ export default class Watcher {
             depIds: new Set()
         })
 
+        if (typeof expOrFn === 'function') {
+            this.getter = expOrFn
+        } else {
+            this.getter = parsePath(expOrFn)
+            this.getter = this.getter || noop
+        }
         this.value = this.get()
     }
 
@@ -20,15 +28,17 @@ export default class Watcher {
     }
 
     update() {
+        let oldValue
         const value = this.get()
         if (value !== this.value) {
+            oldValue = this.value
             this.value = value
-            this.cb.call(this.m, value)
+            this.cb.call(this.m, value, oldValue)
         }
     }
     get() {
         Dep.target = this
-        const value = this.m._data[this.expOrFn]
+        const value = this.getter.call(this.m, this.m)
         Dep.target = null
         return value
     }

@@ -4,7 +4,7 @@
 
 ![vue](./asset/vue.png)
 
-## DEMO
+## [DEMO](./index.js)
 
 ```javascript
 import MVVM from './src/core'
@@ -17,12 +17,18 @@ const template = `
     <div>
         <input bind:value="a" on:input="onInput"/>
         <div>{{a}}</div>
+        <div>{{b}}</div>
     </div>
 `
 
 const mv = new MVVM({
     selector: 'body',
     data,
+    computed: {
+        b() {
+            return 'b:' + this.a
+        }
+    },
     methods: {
         onInput(e) {
             this.a = e.target.value
@@ -31,8 +37,8 @@ const mv = new MVVM({
     template
 })
 
-mv.$watch('a', (newValue) => {
-    console.log('callback', newValue)
+mv.$watch('a', (newValue, oldValue) => {
+    console.log('callback', newValue, oldValue)
 })
 
 console.log(data.a, mv.a)
@@ -44,7 +50,7 @@ global.data = data
 
 
 
-## 结构
+## 演示图
 
 ![mvvm2](./asset/mvvm2.png)
 
@@ -58,7 +64,6 @@ global.data = data
 - Parser
 
 
-
 ##  详细
 
 ### Observer
@@ -66,7 +71,7 @@ global.data = data
 数据监听器
 
 
-#### dep
+#### [dep](./src/observe/dep.js)
 
 管理订阅队列
 
@@ -98,7 +103,7 @@ Dep.target = null
 export default Dep
 ```
 
-#### observe
+#### [observe](./src/observe/index.js)
 
 拦截数据属性的setter和getter，通过getter将订阅者添加至队列，而setter触发时更新队列。
 
@@ -141,13 +146,15 @@ function defineReactive(data, key, value) {
 ```
 
 
-### Watcher
+### [Watcher](./src/watcher.js)
 
 根据传入的属性表达式订阅getter，并将新值传递至回调
 
 ```javascript
 import Dep from './observe/dep'
+import { parsePath } from './utils/lang'
 
+function noop() {}
 export default class Watcher {
     constructor(m, expOrFn, cb) {
         Object.assign(this, {
@@ -157,6 +164,12 @@ export default class Watcher {
             depIds: new Set()
         })
 
+        if (typeof expOrFn === 'function') {
+            this.getter = expOrFn
+        } else {
+            this.getter = parsePath(expOrFn)
+            this.getter = this.getter || noop
+        }
         this.value = this.get()
     }
 
@@ -168,23 +181,24 @@ export default class Watcher {
     }
 
     update() {
+        let oldValue
         const value = this.get()
         if (value !== this.value) {
+            oldValue = this.value
             this.value = value
-            this.cb.call(this.m, value)
+            this.cb.call(this.m, value, oldValue)
         }
     }
-    
     get() {
         Dep.target = this
-        const value = this.m._data[this.expOrFn]
+        const value = this.getter.call(this.m, this.m)
         Dep.target = null
         return value
     }
 }
 ```
 
-## Compiler
+## [Compiler](./src/compile/index.js)
 
 编译自定义模版文件至DOM结构，根据不同的节点类型，调用不同的Parser，最后将解析结果插入到实例元素中
 
@@ -213,7 +227,7 @@ function parseNode(node, m) {
 }
 ```
 
-### Parser
+### [Parser](./src/compile/index.js)
 
 不同的解析器调用不同的解析规则对节点的attributes进行解析，并根据解析结果调用相应的指令
 

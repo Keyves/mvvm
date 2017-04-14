@@ -1,4 +1,5 @@
 import initState from './initState'
+import initComputed from './initComputed'
 import initMethods from './initMethods'
 import Watcher from '../watcher'
 import compile from '../compile'
@@ -11,8 +12,10 @@ export default class MVVM {
         this.$fragment = null
 
         initState(this)
+        initComputed(this)
         initMethods(this)
-        compile(this, opts.template)
+        
+        compile(this)
     }
     $watch(exp, cb) {
         return new Watcher(this, exp, cb)

@@ -8,12 +8,18 @@ const template = `
     <div>
         <input bind:value="a" on:input="onInput"/>
         <div>{{a}}</div>
+        <div>{{b}}</div>
     </div>
 `
 
 const mv = new MVVM({
     selector: 'body',
     data,
+    computed: {
+        b() {
+            return 'computed:' + this.a
+        }
+    },
     methods: {
         onInput(e) {
             this.a = e.target.value
@@ -22,8 +28,8 @@ const mv = new MVVM({
     template
 })
 
-mv.$watch('a', (newValue) => {
-    console.log('callback', newValue)
+mv.$watch('a', (newValue, oldValue) => {
+    console.log('callback', newValue, oldValue)
 })
 
 console.log(data.a, mv.a)

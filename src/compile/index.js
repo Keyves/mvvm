@@ -4,7 +4,8 @@ import {nodeToFragment, stringToFragment, isElementNode, isTextNode, toArray} fr
 const attrRE = /^(bind|on):(\w+)$/
 const textRE = /\{\{((?:.|\s)*?)\}\}/g
 
-export default function compile(m, template) {
+export default function compile(m) {
+    const template = m.$options.template
     m.$fragment = stringToFragment(template)
     parseChildNodes(m.$fragment, m)
     m.$el.appendChild(m.$fragment)
